@@ -113,6 +113,13 @@ public class StringCaseTransform extends Transform<StructuredRecord, StructuredR
     // transform is called once for each record that goes into this stage
     @Override
     public void transform(StructuredRecord record, Emitter<StructuredRecord> emitter) throws Exception {
+        /*
+         * Field metrics, uncomment the following line and the one inside the for loop if you want to
+         * have a counter with the number of fields that you have changed at the CDAP's metrics microservice
+         * https://cdap.atlassian.net/wiki/spaces/DOCS/pages/477692194/Metrics+Microservices
+         */
+        // int fieldsChanged = 0;
+
         StructuredRecord.Builder builder = StructuredRecord.builder(record.getSchema());
         for (Schema.Field field : record.getSchema().getFields()) {
             String fieldName = field.getName();
@@ -123,7 +130,13 @@ public class StringCaseTransform extends Transform<StructuredRecord, StructuredR
             } else {
                 builder.set(fieldName, record.get(fieldName));
             }
+            // Field metrics, uncomment if you want to enable this metric.
+            // fieldsChanged += 1;
         }
+
+        // Uncomment to publish this metric
+        // getContext().getMetrics().count("fieldsChanged", fieldsChanged);
+
         emitter.emit(builder.build());
     }
 
